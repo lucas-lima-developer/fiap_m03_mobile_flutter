@@ -1,0 +1,2 @@
+C:/Users/luiz/Documents/fiap_m03_mobile_flutter/android/app/.cxx/Debug/2e222d51/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/luiz/Documents/fiap_m03_mobile_flutter/android/app/.cxx/Debug/2e222d51/x86_64/CMakeFiles/rebuild_cache.dir

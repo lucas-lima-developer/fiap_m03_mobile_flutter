@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "918491837525",
+    "project_id": "fiap-m03-mobile-flutter",
+    "storage_bucket": "fiap-m03-mobile-flutter.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:918491837525:android:bb75a7de77bc29999350dc",
+        "android_client_info": {
+          "package_name": "com.example.fiap_m03_mobile_flutter_firebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3LjszRi55xRny3tdKmp0EywFXMTuQmQ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
