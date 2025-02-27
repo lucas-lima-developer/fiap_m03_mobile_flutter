@@ -1,16 +1,73 @@
 # fiap_m03_mobile_flutter
 
-A new Flutter project.
+Este projeto é um aplicativo Flutter que utiliza Firebase para autenticação e armazenamento de dados.
 
-## Getting Started
+## Requisitos
 
-This project is a starting point for a Flutter application.
+Antes de iniciar, certifique-se de ter instalado:
 
-A few resources to get you started if this is your first Flutter project:
+- [Flutter SDK](https://flutter.dev/docs/get-started/install) (versão >= 3.0.0)
+- [Android Studio](https://developer.android.com/studio) ou [VS Code](https://code.visualstudio.com/) com extensão Flutter/Dart
+- [Java JDK 11+](https://www.oracle.com/java/technologies/javase-downloads.html) (para compilação no Android)
+- [Firebase CLI](https://firebase.google.com/docs/cli) (opcional, para configuração avançada do Firebase)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Configuração do Projeto
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. **Clone o repositório**
+
+   ```sh
+   git clone <URL_DO_REPOSITORIO>
+   cd fiap_m03_mobile_flutter
+   ```
+
+2. **Instale as dependências**
+
+   ```sh
+   flutter pub get
+   ```
+
+3. **Configure o Firebase**
+
+   - Acesse o [Firebase Console](https://console.firebase.google.com/)
+   - Crie um novo projeto ou use um existente
+   - Adicione um app Android ao projeto Firebase
+   - Baixe o arquivo `google-services.json` e coloque dentro do diretório `android/app`
+
+4. **Execute o projeto**
+   - Conecte um dispositivo Android via USB ou inicie um emulador
+   - Execute o comando:
+     ```sh
+     flutter run
+     ```
+
+## Build para Android
+
+Para gerar um APK de produção:
+
+```sh
+flutter build apk --release
+```
+
+Para gerar um App Bundle (para publicar na Play Store):
+
+```sh
+flutter build appbundle
+```
+
+## Versões do Android
+
+- **compileSdkVersion**: 34
+- **minSdkVersion**: 23
+- **targetSdkVersion**: 34
+
+## Considerações
+
+- Se houver erros com o Firebase, execute:
+  ```sh
+  flutter clean
+  flutter pub get
+  ```
+- Se precisar depurar, utilize:
+  ```sh
+  flutter run --verbose
+  ```
