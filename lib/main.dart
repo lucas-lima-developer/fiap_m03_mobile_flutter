@@ -1,3 +1,5 @@
+import 'package:fiap_m03_mobile_flutter/screens/home_screen.dart';
+import 'package:fiap_m03_mobile_flutter/screens/transaction_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -29,8 +31,10 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login', // Rota inicial
       routes: {
         '/login': (context) => const LoginScreen(), // Rota para a tela de login
-        '/register': (context) =>
-            const RegisterScreen(), // Rota para a tela de cadastro
+        '/register': (context) => const RegisterScreen(),
+        '/home': (context) => const HomeScreen(),
+        '/transaction': (context) =>
+            const TransactionScreen() // Rota para a tela de cadastro
       },
     );
   }

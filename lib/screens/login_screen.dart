@@ -28,13 +28,10 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = false);
 
     if (error == null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
+      Navigator.pushNamed(context, '/home');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error)),
+        SnackBar(content: Text('Credenciais inválidas')),
       );
     }
   }
@@ -96,7 +93,10 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 24),
               _isLoading
-                  ? const CircularProgressIndicator(color: Colors.blueAccent)
+                  ? Center(
+                      child: const CircularProgressIndicator(
+                          color: Colors.blueAccent),
+                    )
                   : ElevatedButton(
                       onPressed: _login,
                       style: ElevatedButton.styleFrom(
