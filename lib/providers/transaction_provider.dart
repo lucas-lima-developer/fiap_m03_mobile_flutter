@@ -12,25 +12,35 @@ class TransactionProvider with ChangeNotifier {
 
   List<Map<String, dynamic>> _transactions = [];
   List<Map<String, dynamic>> get transactions => _transactions;
+  bool isLoading = false;
 
   // Carregar transações do usuário atual
-  Future<void> loadTransactions() async {
-    final user = _auth.currentUser;
-    if (user == null) return;
+  Future<void> loadTransactions({ int limit = 10 }) async {
+    isLoading = true;
 
-    final querySnapshot = await _firestore
-        .collection('transação')
-        .where('userId', isEqualTo: user.uid)
-        .get();
+    try {
+      final user = _auth.currentUser;
+      if (user == null) return;
 
-    _transactions = querySnapshot.docs.map((doc) {
-      return {
-        'id': doc.id,
-        ...doc.data(),
-      };
-    }).toList();
+      final querySnapshot = await _firestore
+          .collection('transação')
+          .where('userId', isEqualTo: user.uid)
+          .limit(limit)
+          .get();
 
-    notifyListeners();
+      _transactions = querySnapshot.docs.map((doc) {
+        return {
+          'id': doc.id,
+          ...doc.data(),
+        };
+      }).toList();
+
+      notifyListeners();
+    } catch (e) {
+      print(e);
+    } finally {
+      isLoading = false;
+    }
   }
 
   // Adicionar uma nova transação
@@ -93,7 +103,7 @@ class TransactionProvider with ChangeNotifier {
   }
 
   // Filtrar transações por categoria
-  Future<void> filterTransactionsByCategory(String category) async {
+  Future<void> filterTransactionsByCategory(String category, int limit) async {
     final user = _auth.currentUser;
     if (user == null) return;
 
@@ -101,6 +111,7 @@ class TransactionProvider with ChangeNotifier {
         .collection('transação')
         .where('userId', isEqualTo: user.uid)
         .where('category', isEqualTo: category)
+        .limit(limit)
         .get();
 
     _transactions = querySnapshot.docs.map((doc) {

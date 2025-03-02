@@ -1,5 +1,8 @@
+import 'package:fiap_m03_mobile_flutter/providers/transaction_provider.dart';
+import 'package:fiap_m03_mobile_flutter/screens/transaction_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class TransactionListPage extends StatefulWidget {
   const TransactionListPage({super.key});
@@ -9,38 +12,25 @@ class TransactionListPage extends StatefulWidget {
 }
 
 class _TransactionListPageState extends State<TransactionListPage> {
-  final List<Map<String, dynamic>> transactions = [
-    {
-      'type': 'Receita',
-      'date': DateTime.now(),
-      'description': 'Pagamento de Cliente',
-      'value': 1500.00,
-      'hasAttachment': true,
-    },
-    {
-      'type': 'Despesa',
-      'date': DateTime.now().subtract(Duration(days: 2)),
-      'description': 'Compra de Material',
-      'value': -250.75,
-      'hasAttachment': false,
-    },
-    {
-      'type': 'Receita',
-      'date': DateTime.now().subtract(Duration(days: 5)),
-      'description': 'Venda de Produto',
-      'value': 780.50,
-      'hasAttachment': true,
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final transactionProvider =
+        Provider.of<TransactionProvider>(context, listen: false);
+
     return Scaffold(
       body: ListView.builder(
         padding: const EdgeInsets.all(8),
-        itemCount: transactions.length,
+        itemCount: transactionProvider.transactions.length,
         itemBuilder: (context, index) {
-          final transaction = transactions[index];
+          final sortedTransactions =
+              List.from(transactionProvider.transactions);
+
+          sortedTransactions.sort((a, b) {
+            return b['date'].seconds.compareTo(a['date'].seconds);
+          });
+
+          final transaction = sortedTransactions[index];
+
           return TransactionCard(transaction: transaction);
         },
       ),
@@ -55,51 +45,62 @@ class TransactionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isIncome = transaction['value'] > 0;
+    final bool isIncome = transaction['amount'] > 0;
     final currencyFormat =
         NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
 
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      elevation: 3,
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(12),
-        leading: Icon(
-          isIncome ? Icons.arrow_circle_up : Icons.arrow_circle_down,
-          color: isIncome ? Colors.green : Colors.red,
-          size: 32,
-        ),
-        title: Text(
-          transaction['description'],
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(
-          '${DateFormat('dd/MM/yyyy').format(transaction['date'])} • ${transaction['type']}',
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (transaction['hasAttachment'])
-              IconButton(
-                icon:
-                    Icon(Icons.download, color: Theme.of(context).primaryColor),
-                onPressed: () {
-                  // Ação de download do anexo
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Baixando anexo...')),
-                  );
-                },
-              ),
-            Text(
-              currencyFormat.format(transaction['value']),
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: isIncome ? Colors.green : Colors.red,
-              ),
+    return GestureDetector(
+      onTap: () => {
+        Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) => TransactionScreen(
+              transaction: transaction,
             ),
-          ],
+          ),
+        )
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        elevation: 0.5,
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        child: ListTile(
+          contentPadding: const EdgeInsets.all(12),
+          leading: Icon(
+            isIncome ? Icons.arrow_circle_up : Icons.arrow_circle_down,
+            color: isIncome ? Colors.green : Colors.red,
+            size: 32,
+          ),
+          title: Text(
+            transaction['description'],
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          subtitle: Text(
+            '${DateFormat('dd/MM/yyyy').format(DateTime.fromMillisecondsSinceEpoch(transaction['date'].seconds * 1000))} • ${transaction['category']}',
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (transaction['attachmentUrl'] != null)
+                IconButton(
+                  icon: Icon(Icons.download,
+                      color: Theme.of(context).primaryColor),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Baixando anexo...')),
+                    );
+                  },
+                ),
+              Text(
+                currencyFormat.format(transaction['amount']),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: isIncome ? Colors.green : Colors.red,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:fiap_m03_mobile_flutter/providers/transaction_provider.dart';
 import 'package:fiap_m03_mobile_flutter/screens/home_screen.dart';
 import 'package:fiap_m03_mobile_flutter/screens/transaction_screen.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AuthProvider()),
+        ChangeNotifierProvider(create: (context) => TransactionProvider()),
       ],
       child: const MyApp(),
     ),

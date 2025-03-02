@@ -52,48 +52,54 @@ class _TransactionScreenState extends State<TransactionScreen> {
   }
 
   Future<void> _saveTransaction() async {
-    if (_formKey.currentState!.validate()) {
-      final transactionProvider =
-          Provider.of<TransactionProvider>(context, listen: false);
+    final transactionProvider =
+        Provider.of<TransactionProvider>(context, listen: false);
 
-      final description = _descriptionController.text;
-      final amount = double.parse(_amountController.text);
-      final category =
-          _categoryController.text.isEmpty ? null : _categoryController.text;
-      final date = _selectedDate ?? DateTime.now();
+    try {
+      if (_formKey.currentState!.validate()) {
+        final description = _descriptionController.text;
+        final amount = double.parse(_amountController.text);
+        final category =
+            _categoryController.text.isEmpty ? null : _categoryController.text;
+        final date = _selectedDate ?? DateTime.now();
 
-      if (widget.transaction == null) {
-        // Adicionar nova transação
-        final error = await transactionProvider.addTransaction(
-          description: description,
-          amount: amount,
-          date: date,
-          category: category,
-        );
-        if (error != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Erro ao adicionar transação')),
+        if (widget.transaction == null) {
+          // Adicionar nova transação
+          final error = await transactionProvider.addTransaction(
+            description: description,
+            amount: amount,
+            date: date,
+            category: category,
           );
+          if (error != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Erro ao adicionar transação')),
+            );
+          } else {
+            await transactionProvider.loadTransactions();
+            Navigator.pop(context);
+          }
         } else {
-          Navigator.pop(context);
-        }
-      } else {
-        // Editar transação existente
-        final error = await transactionProvider.editTransaction(
-          transactionId: widget.transaction!['id'],
-          description: description,
-          amount: amount,
-          date: date,
-          category: category,
-        );
-        if (error != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Erro ao editar transação')),
+          // Editar transação existente
+          final error = await transactionProvider.editTransaction(
+            transactionId: widget.transaction!['id'],
+            description: description,
+            amount: amount,
+            date: date,
+            category: category,
           );
-        } else {
-          Navigator.pop(context);
+          if (error != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Erro ao editar transação')),
+            );
+          } else {
+            await transactionProvider.loadTransactions();
+            Navigator.pop(context);
+          }
         }
       }
+    } catch (err) {
+      print(err);
     }
   }
 
