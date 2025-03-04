@@ -63,10 +63,17 @@ class _TransactionScreenState extends State<TransactionScreen> {
         final category = _selectedCategory;
         final date = _selectedDate ?? DateTime.now();
 
+        final transactionTypeSlug = stringToTransactionType(category ?? '');
+
+        final sanitizedAmount =
+            transactionTypeSlug == TransactionCategory.deposito
+                ? amount.abs()
+                : -amount.abs();
+
         if (widget.transaction == null) {
           final error = await transactionProvider.addTransaction(
             description: description,
-            amount: amount,
+            amount: sanitizedAmount,
             date: date,
             category: category,
           );
@@ -82,7 +89,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
           final error = await transactionProvider.editTransaction(
             transactionId: widget.transaction!.id,
             description: description,
-            amount: amount,
+            amount: sanitizedAmount,
             date: date,
             category: category,
           );
