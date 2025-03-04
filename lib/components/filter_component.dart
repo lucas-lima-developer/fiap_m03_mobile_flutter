@@ -1,4 +1,4 @@
-import 'package:fiap_m03_mobile_flutter/types/transactions.dart';
+import 'package:fiap_m03_mobile_flutter/types/category.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/intl_standalone.dart';

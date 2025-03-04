@@ -1,9 +1,10 @@
+import 'package:fiap_m03_mobile_flutter/types/transaction.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class PieChartComponent extends StatefulWidget {
-  final List<Map<String, dynamic>> transactions;
+  final List<TransactionType> transactions;
 
   const PieChartComponent({super.key, required this.transactions});
 
@@ -81,8 +82,8 @@ class PieChartComponentState extends State<PieChartComponent> {
   Map<String, double> _groupByCategory() {
     final categoryMap = <String, double>{};
     for (var transaction in widget.transactions) {
-      final category = transaction['category'];
-      final amount = transaction['amount'] as double;
+      final category = transaction.category;
+      final amount = transaction.amount;
       final isExpense = amount < 0;
 
       if (isExpense) {

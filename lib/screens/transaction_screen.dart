@@ -1,10 +1,11 @@
-import 'package:fiap_m03_mobile_flutter/types/transactions.dart';
+import 'package:fiap_m03_mobile_flutter/types/transaction.dart';
+import 'package:fiap_m03_mobile_flutter/types/category.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
 
 class TransactionScreen extends StatefulWidget {
-  final Map<String, dynamic>? transaction;
+  final TransactionType? transaction;
 
   const TransactionScreen({super.key, this.transaction});
 
@@ -23,10 +24,10 @@ class _TransactionScreenState extends State<TransactionScreen> {
   void initState() {
     super.initState();
     if (widget.transaction != null) {
-      _descriptionController.text = widget.transaction!['description'];
-      _amountController.text = widget.transaction!['amount'].toString();
-      _selectedCategory = widget.transaction!['category'] ?? '';
-      _selectedDate = widget.transaction!['date'].toDate();
+      _descriptionController.text = widget.transaction!.description;
+      _amountController.text = widget.transaction!.amount.toString();
+      _selectedCategory = widget.transaction!.category;
+      _selectedDate = widget.transaction!.date;
     }
   }
 
@@ -79,13 +80,14 @@ class _TransactionScreenState extends State<TransactionScreen> {
           }
         } else {
           final error = await transactionProvider.editTransaction(
-            transactionId: widget.transaction!['id'],
+            transactionId: widget.transaction!.id,
             description: description,
             amount: amount,
             date: date,
             category: category,
           );
           if (error != null) {
+            print(error);
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Erro ao editar transação')),
             );

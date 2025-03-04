@@ -1,42 +1,42 @@
 import 'package:flutter/material.dart';
 
-enum TransactionType {
+enum TransactionCategory {
   deposito,
   saque,
   pagamento,
   transferencia,
 }
 
-String transactionTypeToString(TransactionType type) {
+String transactionTypeToString(TransactionCategory type) {
   switch (type) {
-    case TransactionType.deposito:
+    case TransactionCategory.deposito:
       return 'Depósito';
-    case TransactionType.saque:
+    case TransactionCategory.saque:
       return 'Saque';
-    case TransactionType.pagamento:
+    case TransactionCategory.pagamento:
       return 'Pagamento';
-    case TransactionType.transferencia:
+    case TransactionCategory.transferencia:
       return 'Transferência';
   }
 }
 
-TransactionType stringToTransactionType(String value) {
+TransactionCategory stringToTransactionType(String value) {
   switch (value.toLowerCase()) {
     case 'depósito':
-      return TransactionType.deposito;
+      return TransactionCategory.deposito;
     case 'saque':
-      return TransactionType.saque;
+      return TransactionCategory.saque;
     case 'pagamento':
-      return TransactionType.pagamento;
+      return TransactionCategory.pagamento;
     case 'transferência':
-      return TransactionType.transferencia;
+      return TransactionCategory.transferencia;
     default:
       throw Exception('Tipo de transação desconhecido: $value');
   }
 }
 
 List<DropdownMenuItem<String>> getTransactionDropdownItems() {
-  return TransactionType.values.map((type) {
+  return TransactionCategory.values.map((type) {
     return DropdownMenuItem<String>(
       value: transactionTypeToString(type),
       child: Text(transactionTypeToString(type)),
@@ -45,7 +45,7 @@ List<DropdownMenuItem<String>> getTransactionDropdownItems() {
 }
 
 List<Map<String, String>> getTransactionTypes() {
-  return TransactionType.values.map((type) {
+  return TransactionCategory.values.map((type) {
     return {
       'value': type.toString(),
       'description': transactionTypeToString(type),

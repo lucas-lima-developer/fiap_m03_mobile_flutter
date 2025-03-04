@@ -3,24 +3,26 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fiap_m03_mobile_flutter/types/transaction.dart';
 
 class TransactionProvider with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  List<Map<String, dynamic>> _transactions = [];
-  List<Map<String, dynamic>> get transactions => _transactions;
+  final List<TransactionType> _transactions = [];
+  List<TransactionType> get transactions => _transactions;
   bool isLoading = false;
   DocumentSnapshot? _lastDocument;
   bool hasMore = true;
 
-  Future<void> loadTransactions(
-      {int limit = 5,
-      String? category,
-      DateTime? startDate,
-      DateTime? endDate,
-      bool reset = false}) async {
+  Future<void> loadTransactions({
+    int limit = 5,
+    String? category,
+    DateTime? startDate,
+    DateTime? endDate,
+    bool reset = false,
+  }) async {
     if ((isLoading || !hasMore) && !reset) return;
 
     isLoading = true;
@@ -28,12 +30,13 @@ class TransactionProvider with ChangeNotifier {
 
     try {
       final user = _auth.currentUser;
-
       if (user == null) return;
 
-      _lastDocument = null;
-      _transactions.clear();
-      hasMore = true;
+      if (reset) {
+        _lastDocument = null;
+        _transactions.clear();
+        hasMore = true;
+      }
 
       Query query = _firestore
           .collection('transação')
@@ -61,7 +64,8 @@ class TransactionProvider with ChangeNotifier {
         _lastDocument = querySnapshot.docs.last;
 
         _transactions.addAll(querySnapshot.docs.map((doc) {
-          return {'id': doc.id, ...doc.data() as Map<String, dynamic>};
+          return TransactionType.fromJson(
+              doc.data() as Map<String, dynamic>, doc.id);
         }).toList());
       } else {
         hasMore = false;
@@ -133,28 +137,6 @@ class TransactionProvider with ChangeNotifier {
     } catch (e) {
       return e.toString();
     }
-  }
-
-  // Filtrar transações por category
-  Future<void> filterTransactionsByCategory(String category, int limit) async {
-    final user = _auth.currentUser;
-    if (user == null) return;
-
-    final querySnapshot = await _firestore
-        .collection('transação')
-        .where('userId', isEqualTo: user.uid)
-        .where('category', isEqualTo: category)
-        .limit(limit)
-        .get();
-
-    _transactions = querySnapshot.docs.map((doc) {
-      return {
-        'id': doc.id,
-        ...doc.data(),
-      };
-    }).toList();
-
-    notifyListeners();
   }
 
   // Upload de anexo para uma transação

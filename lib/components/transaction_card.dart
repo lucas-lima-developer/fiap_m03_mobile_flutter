@@ -1,16 +1,17 @@
+import 'package:fiap_m03_mobile_flutter/types/transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fiap_m03_mobile_flutter/screens/transaction_screen.dart';
 
 
 class TransactionCard extends StatelessWidget {
-  final Map<String, dynamic> transaction;
+  final TransactionType transaction;
 
   const TransactionCard({super.key, required this.transaction});
 
   @override
   Widget build(BuildContext context) {
-    final bool isIncome = transaction['amount'] > 0;
+    final bool isIncome = transaction.amount > 0;
     final currencyFormat =
         NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
 
@@ -37,16 +38,16 @@ class TransactionCard extends StatelessWidget {
             size: 32,
           ),
           title: Text(
-            transaction['description'],
+            transaction.description,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           subtitle: Text(
-            '${DateFormat('dd/MM/yyyy').format(DateTime.fromMillisecondsSinceEpoch(transaction['date'].seconds * 1000))} • ${transaction['category']}',
+            '${DateFormat('dd/MM/yyyy').format(DateTime.fromMillisecondsSinceEpoch(transaction.date.millisecondsSinceEpoch))} • ${transaction.category}'
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (transaction['attachmentUrl'] != null)
+              if (transaction.attachmentUrl != null)
                 IconButton(
                   icon: Icon(Icons.download,
                       color: Theme.of(context).primaryColor),
@@ -57,7 +58,7 @@ class TransactionCard extends StatelessWidget {
                   },
                 ),
               Text(
-                currencyFormat.format(transaction['amount']),
+                currencyFormat.format(transaction.amount),
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,

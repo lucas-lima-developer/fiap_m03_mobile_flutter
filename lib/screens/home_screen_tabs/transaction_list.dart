@@ -1,6 +1,6 @@
 import 'package:fiap_m03_mobile_flutter/components/filter_component.dart';
 import 'package:fiap_m03_mobile_flutter/components/transaction_card.dart';
-import 'package:fiap_m03_mobile_flutter/types/transactions.dart';
+import 'package:fiap_m03_mobile_flutter/types/category.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fiap_m03_mobile_flutter/providers/transaction_provider.dart';
