@@ -2,6 +2,7 @@ import 'package:fiap_m03_mobile_flutter/screens/home_screen_tabs/dashboard.dart'
 import 'package:fiap_m03_mobile_flutter/screens/home_screen_tabs/transaction_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../providers/auth_provider.dart';
 import '../providers/transaction_provider.dart';
@@ -17,16 +18,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadTransactions(context);
-  }
-
-  void _loadTransactions(BuildContext context) {
-    Future.delayed(Duration.zero, () {
-      final transactionProvider =
-          Provider.of<TransactionProvider>(context, listen: false);
-
-      transactionProvider.loadTransactions();
-    });
   }
 
   @override
@@ -35,6 +26,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final transactionProvider = Provider.of<TransactionProvider>(context);
 
     return MaterialApp(
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [Locale('pt', 'BR')],
       home: DefaultTabController(
         length: 2,
         child: Scaffold(
@@ -79,9 +76,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.home),
+                      Icon(Icons.currency_exchange),
                       SizedBox(width: 8),
-                      Text('Dashboard')
+                      Text('Extrato')
                     ],
                   ),
                 ),
@@ -89,9 +86,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.currency_exchange),
+                      Icon(Icons.bar_chart),
                       SizedBox(width: 8),
-                      Text('Transações')
+                      Text('Análise')
                     ],
                   ),
                 ),
@@ -101,17 +98,17 @@ class _HomeScreenState extends State<HomeScreen> {
           body: transactionProvider.isLoading
               ? const Center(child: CircularProgressIndicator())
               : const TabBarView(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Dashboard(),
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.all(16),
+                          child: TransactionListPage(),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Dashboard(),
+                        ),
+                      ],
                     ),
-                    Padding(
-                      padding: EdgeInsets.all(16),
-                      child: TransactionListPage(),
-                    ),
-                  ],
-                ),
         ),
       ),
     );

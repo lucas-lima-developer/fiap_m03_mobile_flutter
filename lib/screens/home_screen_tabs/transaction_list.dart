@@ -1,8 +1,9 @@
-import 'package:fiap_m03_mobile_flutter/providers/transaction_provider.dart';
-import 'package:fiap_m03_mobile_flutter/screens/transaction_screen.dart';
+import 'package:fiap_m03_mobile_flutter/components/filter_component.dart';
+import 'package:fiap_m03_mobile_flutter/components/transaction_card.dart';
+import 'package:fiap_m03_mobile_flutter/types/transactions.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:fiap_m03_mobile_flutter/providers/transaction_provider.dart';
 
 class TransactionListPage extends StatefulWidget {
   const TransactionListPage({super.key});
@@ -12,97 +13,102 @@ class TransactionListPage extends StatefulWidget {
 }
 
 class _TransactionListPageState extends State<TransactionListPage> {
+  final ScrollController _scrollController = ScrollController();
+
+  String? _categoriaSelecionada;
+  DateTimeRange? _dataRange;
+
   @override
-  Widget build(BuildContext context) {
-    final transactionProvider =
-        Provider.of<TransactionProvider>(context, listen: false);
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadTransactions(context);
+    });
+  }
 
-    return Scaffold(
-      body: ListView.builder(
-        padding: const EdgeInsets.all(8),
-        itemCount: transactionProvider.transactions.length,
-        itemBuilder: (context, index) {
-          final sortedTransactions =
-              List.from(transactionProvider.transactions);
+  void _loadTransactions(BuildContext context) {
+    Future.delayed(Duration.zero, () async {
+      final transactionProvider =
+          Provider.of<TransactionProvider>(context, listen: false);
 
-          sortedTransactions.sort((a, b) {
-            return b['date'].seconds.compareTo(a['date'].seconds);
-          });
+      await transactionProvider.loadTransactions();
+    });
+  }
 
-          final transaction = sortedTransactions[index];
+  void _aplicarFiltro(Map<String, dynamic> filtro) {
+    final category = filtro['category'] as String?;
+    final startDate = filtro['startDate'] as DateTime?;
+    final endDate = filtro['endDate'] as DateTime?;
+    final reset = filtro['reset'] as bool;
 
-          return TransactionCard(transaction: transaction);
-        },
-      ),
+    setState(() {
+      _categoriaSelecionada = category;
+      _dataRange = filtro['dataRange'] as DateTimeRange?;
+    });
+
+    Provider.of<TransactionProvider>(context, listen: false).loadTransactions(
+      limit: 5,
+      category: category,
+      startDate: startDate,
+      endDate: endDate,
+      reset: reset,
     );
   }
-}
-
-class TransactionCard extends StatelessWidget {
-  final Map<String, dynamic> transaction;
-
-  const TransactionCard({super.key, required this.transaction});
 
   @override
   Widget build(BuildContext context) {
-    final bool isIncome = transaction['amount'] > 0;
-    final currencyFormat =
-        NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
-
-    return GestureDetector(
-      onTap: () => {
-        Navigator.push(
-          context,
-          MaterialPageRoute<void>(
-            builder: (BuildContext context) => TransactionScreen(
-              transaction: transaction,
-            ),
+    return Consumer<TransactionProvider>(
+      builder: (context, transactionProvider, child) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text("Transações"),
           ),
-        )
-      },
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        elevation: 0.5,
-        margin: const EdgeInsets.symmetric(vertical: 6),
-        child: ListTile(
-          contentPadding: const EdgeInsets.all(12),
-          leading: Icon(
-            isIncome ? Icons.arrow_circle_up : Icons.arrow_circle_down,
-            color: isIncome ? Colors.green : Colors.red,
-            size: 32,
-          ),
-          title: Text(
-            transaction['description'],
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          subtitle: Text(
-            '${DateFormat('dd/MM/yyyy').format(DateTime.fromMillisecondsSinceEpoch(transaction['date'].seconds * 1000))} • ${transaction['category']}',
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
+          body: Column(
             children: [
-              if (transaction['attachmentUrl'] != null)
-                IconButton(
-                  icon: Icon(Icons.download,
-                      color: Theme.of(context).primaryColor),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Baixando anexo...')),
-                    );
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FilterComponent(
+                  onFilterApply: (filtro) {
+                    _aplicarFiltro(filtro);
                   },
                 ),
-              Text(
-                currencyFormat.format(transaction['amount']),
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: isIncome ? Colors.green : Colors.red,
-                ),
               ),
+              transactionProvider.transactions.isEmpty
+                  ? Text('Não há transações.')
+                  : Expanded(
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.all(8),
+                        itemCount: transactionProvider.transactions.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index ==
+                              transactionProvider.transactions.length) {
+                            return transactionProvider.isLoading
+                                ? const Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Center(
+                                        child: CircularProgressIndicator()),
+                                  )
+                                : const SizedBox.shrink();
+                          }
+
+                          final transaction =
+                              transactionProvider.transactions[index];
+
+                          return TransactionCard(transaction: transaction);
+                        },
+                      ),
+                    ),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 }

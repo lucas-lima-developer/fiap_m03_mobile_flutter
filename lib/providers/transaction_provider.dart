@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -13,33 +12,67 @@ class TransactionProvider with ChangeNotifier {
   List<Map<String, dynamic>> _transactions = [];
   List<Map<String, dynamic>> get transactions => _transactions;
   bool isLoading = false;
+  DocumentSnapshot? _lastDocument;
+  bool hasMore = true;
 
-  // Carregar transações do usuário atual
-  Future<void> loadTransactions({ int limit = 10 }) async {
+  Future<void> loadTransactions(
+      {int limit = 5,
+      String? category,
+      DateTime? startDate,
+      DateTime? endDate,
+      bool reset = false}) async {
+    if ((isLoading || !hasMore) && !reset) return;
+
     isLoading = true;
+    notifyListeners();
 
     try {
       final user = _auth.currentUser;
+
       if (user == null) return;
 
-      final querySnapshot = await _firestore
+      _lastDocument = null;
+      _transactions.clear();
+      hasMore = true;
+
+      Query query = _firestore
           .collection('transação')
           .where('userId', isEqualTo: user.uid)
-          .limit(limit)
-          .get();
+          .orderBy('date', descending: true)
+          .limit(limit);
 
-      _transactions = querySnapshot.docs.map((doc) {
-        return {
-          'id': doc.id,
-          ...doc.data(),
-        };
-      }).toList();
+      if (category != null) {
+        query = query.where('category', isEqualTo: category);
+      }
+
+      if (startDate != null && endDate != null) {
+        query = query
+            .where('date', isGreaterThanOrEqualTo: startDate)
+            .where('date', isLessThanOrEqualTo: endDate);
+      }
+
+      if (_lastDocument != null) {
+        query = query.startAfterDocument(_lastDocument!);
+      }
+
+      final querySnapshot = await query.get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        _lastDocument = querySnapshot.docs.last;
+
+        _transactions.addAll(querySnapshot.docs.map((doc) {
+          return {'id': doc.id, ...doc.data() as Map<String, dynamic>};
+        }).toList());
+      } else {
+        hasMore = false;
+      }
 
       notifyListeners();
     } catch (e) {
-      print(e);
+      print('Erro ao carregar transações: $e');
     } finally {
       isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -102,7 +135,7 @@ class TransactionProvider with ChangeNotifier {
     }
   }
 
-  // Filtrar transações por categoria
+  // Filtrar transações por category
   Future<void> filterTransactionsByCategory(String category, int limit) async {
     final user = _auth.currentUser;
     if (user == null) return;

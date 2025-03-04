@@ -114,9 +114,11 @@ class _BarChartComponentState extends State<BarChartComponent> {
   Map<int, Map<String, double>> _groupTransactionsByMonth(
       List<Map<String, dynamic>> transactions) {
     final Map<int, Map<String, double>> groupedData = {};
+
     for (var transaction in transactions) {
       final DateTime date = DateTime.fromMillisecondsSinceEpoch(
-          transaction['date'].seconds * 1000);
+        transaction['date'].seconds * 1000,
+      );
       final int month = date.month;
       final double amount = transaction['amount'] as double;
       final bool isIncome = amount > 0;
@@ -128,6 +130,12 @@ class _BarChartComponentState extends State<BarChartComponent> {
         groupedData[month]!['out'] = (groupedData[month]!['out'] ?? 0) + amount;
       }
     }
-    return groupedData;
+
+    final sortedGroupedData = Map.fromEntries(
+      groupedData.entries.toList()..sort((e1, e2) => e1.key.compareTo(e2.key)),
+    );
+
+    return sortedGroupedData;
   }
+
 }

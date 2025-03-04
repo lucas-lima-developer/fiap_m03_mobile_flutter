@@ -1,3 +1,4 @@
+import 'package:fiap_m03_mobile_flutter/types/transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
@@ -15,7 +16,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
   final _formKey = GlobalKey<FormState>();
   final _descriptionController = TextEditingController();
   final _amountController = TextEditingController();
-  final _categoryController = TextEditingController();
+  String? _selectedCategory;
   DateTime? _selectedDate;
 
   @override
@@ -24,7 +25,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
     if (widget.transaction != null) {
       _descriptionController.text = widget.transaction!['description'];
       _amountController.text = widget.transaction!['amount'].toString();
-      _categoryController.text = widget.transaction!['category'] ?? '';
+      _selectedCategory = widget.transaction!['category'] ?? '';
       _selectedDate = widget.transaction!['date'].toDate();
     }
   }
@@ -33,7 +34,6 @@ class _TransactionScreenState extends State<TransactionScreen> {
   void dispose() {
     _descriptionController.dispose();
     _amountController.dispose();
-    _categoryController.dispose();
     super.dispose();
   }
 
@@ -59,12 +59,10 @@ class _TransactionScreenState extends State<TransactionScreen> {
       if (_formKey.currentState!.validate()) {
         final description = _descriptionController.text;
         final amount = double.parse(_amountController.text);
-        final category =
-            _categoryController.text.isEmpty ? null : _categoryController.text;
+        final category = _selectedCategory;
         final date = _selectedDate ?? DateTime.now();
 
         if (widget.transaction == null) {
-          // Adicionar nova transação
           final error = await transactionProvider.addTransaction(
             description: description,
             amount: amount,
@@ -80,7 +78,6 @@ class _TransactionScreenState extends State<TransactionScreen> {
             Navigator.pop(context);
           }
         } else {
-          // Editar transação existente
           final error = await transactionProvider.editTransaction(
             transactionId: widget.transaction!['id'],
             description: description,
@@ -158,14 +155,16 @@ class _TransactionScreenState extends State<TransactionScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                  controller: _categoryController,
-                  decoration: InputDecoration(
-                    labelText: 'Categoria (opcional)',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  )),
+              DropdownButton<String>(
+                value: _selectedCategory,
+                hint: Text('Selecione uma categoria'),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCategory = value;
+                  });
+                },
+                items: getTransactionDropdownItems(),
+              ),
               const SizedBox(height: 24),
               Row(
                 children: [
