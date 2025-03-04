@@ -1,3 +1,4 @@
+import 'package:fiap_m03_mobile_flutter/components/filter_component.dart';
 import 'package:fiap_m03_mobile_flutter/components/transaction_card.dart';
 import 'package:fiap_m03_mobile_flutter/providers/transaction_provider.dart';
 import 'package:fiap_m03_mobile_flutter/types/transaction.dart';
@@ -13,10 +14,51 @@ class ListViewScreen extends StatefulWidget {
 }
 
 class _ListViewScreenState extends State<ListViewScreen> {
-  late final _pagingController = PagingController<int, TransactionType>(
-    getNextPageKey: (state) => (state.keys?.last ?? 0) + 1,
-    fetchPage: _loadTransactions,
-  );
+  final PagingController<int, TransactionType> _pagingController =
+      PagingController(firstPageKey: 0);
+  Map<String, dynamic> _currentFilters = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _pagingController.addPageRequestListener((pageKey) {
+      _loadTransactions(pageKey);
+    });
+  }
+
+  Future<void> _loadTransactions(int pageKey) async {
+    final transactionProvider =
+        Provider.of<TransactionProvider>(context, listen: false);
+
+    try {
+      final newTransactions = await transactionProvider.loadTransactions(
+        limit: 10,
+        reset: pageKey == 0,
+        category: _currentFilters['category'],
+        startDate: _currentFilters['startDate'],
+        endDate: _currentFilters['endDate'],
+      );
+
+      if (newTransactions.isNotEmpty) {
+        if (transactionProvider.hasMore) {
+          _pagingController.appendPage(newTransactions, pageKey + 1);
+        } else {
+          _pagingController.appendLastPage(newTransactions);
+        }
+      } else {
+        _pagingController.appendLastPage(newTransactions);
+      }
+    } catch (error) {
+      _pagingController.error = error;
+    }
+  }
+
+  void _onFilterApply(Map<String, dynamic> filters) {
+    setState(() {
+      _currentFilters = filters;
+      _pagingController.refresh();
+    });
+  }
 
   @override
   void dispose() {
@@ -24,31 +66,26 @@ class _ListViewScreenState extends State<ListViewScreen> {
     super.dispose();
   }
 
-  Future<List<TransactionType>> _loadTransactions(int pageKey) async {
-    try {
-      final transactionProvider =
-          Provider.of<TransactionProvider>(context, listen: false);
-
-      await transactionProvider.loadTransactions(limit: 5);
-
-      return transactionProvider.transactions;
-    } catch (error) {
-      print('Erro ao carregar transações: $error');
-      return [];
-    }
-  }
-
   @override
-  Widget build(BuildContext context) => PagingListener(
-        controller: _pagingController,
-        builder: (context, state, fetchNextPage) =>
-            PagedListView<int, TransactionType>(
-          state: state,
-          fetchNextPage: fetchNextPage,
-          builderDelegate: PagedChildBuilderDelegate(
-            itemBuilder: (context, item, index) =>
-                TransactionCard(transaction: item),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Listagem de Transações'),
+      ),
+      body: Column(
+        children: [
+          FilterComponent(onFilterApply: _onFilterApply),
+          Expanded(
+            child: PagedListView<int, TransactionType>(
+              pagingController: _pagingController,
+              builderDelegate: PagedChildBuilderDelegate<TransactionType>(
+                itemBuilder: (context, item, index) =>
+                    TransactionCard(transaction: item),
+              ),
+            ),
           ),
-        ),
-      );
+        ],
+      ),
+    );
+  }
 }

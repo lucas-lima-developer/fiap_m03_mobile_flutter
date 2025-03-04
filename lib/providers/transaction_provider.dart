@@ -16,21 +16,21 @@ class TransactionProvider with ChangeNotifier {
   DocumentSnapshot? _lastDocument;
   bool hasMore = true;
 
-  Future<void> loadTransactions({
-    int limit = 5,
+  Future<List<TransactionType>> loadTransactions({
+    int limit = 10,
+    bool reset = false,
     String? category,
     DateTime? startDate,
     DateTime? endDate,
-    bool reset = false,
   }) async {
-    if ((isLoading || !hasMore) && !reset) return;
+    if (isLoading) return [];
 
     isLoading = true;
     notifyListeners();
 
     try {
       final user = _auth.currentUser;
-      if (user == null) return;
+      if (user == null) return [];
 
       if (reset) {
         _lastDocument = null;
@@ -44,36 +44,38 @@ class TransactionProvider with ChangeNotifier {
           .orderBy('date', descending: true)
           .limit(limit);
 
-      if (category != null) {
-        query = query.where('category', isEqualTo: category);
-      }
-
+      if (category != null) query = query.where('category', isEqualTo: category);
       if (startDate != null && endDate != null) {
         query = query
             .where('date', isGreaterThanOrEqualTo: startDate)
             .where('date', isLessThanOrEqualTo: endDate);
       }
 
-      if (_lastDocument != null) {
-        query = query.startAfterDocument(_lastDocument!);
-      }
+      if (_lastDocument != null) query = query.startAfterDocument(_lastDocument!);
 
       final querySnapshot = await query.get();
 
       if (querySnapshot.docs.isNotEmpty) {
         _lastDocument = querySnapshot.docs.last;
 
-        _transactions.addAll(querySnapshot.docs.map((doc) {
-          return TransactionType.fromJson(
-              doc.data() as Map<String, dynamic>, doc.id);
-        }).toList());
+        final newTransactions = querySnapshot.docs.map((doc) {
+          return TransactionType.fromJson(doc.data() as Map<String, dynamic>, doc.id);
+        }).toList();
+
+        _transactions.addAll(newTransactions);
+
+        if (querySnapshot.docs.length < limit) {
+          hasMore = false;
+        }
+
+        return newTransactions;
       } else {
         hasMore = false;
+        return [];
       }
-
-      notifyListeners();
     } catch (e) {
       print('Erro ao carregar transações: $e');
+      rethrow;
     } finally {
       isLoading = false;
       notifyListeners();

@@ -1,7 +1,6 @@
 import 'package:fiap_m03_mobile_flutter/types/category.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:intl/intl_standalone.dart';
 
 class FilterComponent extends StatefulWidget {
   final Function(Map<String, dynamic>) onFilterApply;
@@ -18,21 +17,22 @@ class FilterComponent extends StatefulWidget {
 class _FilterComponentState extends State<FilterComponent> {
   String? _selectedCategory;
   DateTimeRange? _dataRange;
-
   final DateFormat _dateFormat = DateFormat('dd/MM/yyyy');
 
   void _applyFilter() {
+    final filters = {
+      'category': _selectedCategory,
+      'startDate': _dataRange?.start,
+      'endDate': _dataRange?.end,
+      'reset': false,
+    };
+
     if (_selectedCategory != null || _dataRange != null) {
-      widget.onFilterApply({
-        'category': _selectedCategory,
-        'startDate': _dataRange?.start,
-        'endDate': _dataRange?.end,
-        'reset': false,
-      });
+      widget.onFilterApply(filters);
     }
   }
 
-  void _limparFiltros() {
+  void _clearFilters() {
     setState(() {
       _selectedCategory = null;
       _dataRange = null;
@@ -67,16 +67,6 @@ class _FilterComponentState extends State<FilterComponent> {
               firstDate: DateTime(2020),
               lastDate: DateTime(2030),
               initialDateRange: _dataRange,
-              builder: (context, child) {
-                return Theme(
-                  data: ThemeData.light().copyWith(
-                    primaryColor: Colors.blue,
-                    buttonTheme:
-                        ButtonThemeData(textTheme: ButtonTextTheme.primary),
-                  ),
-                  child: child!,
-                );
-              },
               locale: const Locale("pt", "BR"),
             );
             if (result != null) {
@@ -108,7 +98,7 @@ class _FilterComponentState extends State<FilterComponent> {
             ),
             if (_selectedCategory != null || _dataRange != null)
               ElevatedButton(
-                onPressed: _limparFiltros,
+                onPressed: _clearFilters,
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
                     foregroundColor: Colors.white),

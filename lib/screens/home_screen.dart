@@ -1,6 +1,5 @@
 import 'package:fiap_m03_mobile_flutter/screens/home_screen_tabs/dashboard.dart';
 import 'package:fiap_m03_mobile_flutter/screens/home_screen_tabs/list_view_screen.dart';
-import 'package:fiap_m03_mobile_flutter/screens/home_screen_tabs/transaction_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -96,9 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          body: transactionProvider.isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : const TabBarView(
+          body: const TabBarView(
                   children: [
                     Padding(
                       padding: EdgeInsets.all(16),
