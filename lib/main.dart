@@ -31,12 +31,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white, // Força o fundo branco
+      ),
       initialRoute: '/login',
       routes: {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/home': (context) => const HomeScreen(),
-        '/transaction': (context) => const TransactionScreen()
+        '/transaction': (context) => const TransactionScreen(),
       },
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,

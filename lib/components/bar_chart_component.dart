@@ -39,17 +39,21 @@ class _BarChartComponentState extends State<BarChartComponent> {
     ];
 
     return Scaffold(
+      backgroundColor: Colors.white, // Fundo do Scaffold branco
       appBar: AppBar(
+        backgroundColor: Colors.white, // Fundo do AppBar branco
+        elevation: 0, // Remove sombra do AppBar
         title: Text(
           "Entrada/Saída",
           style: Theme.of(context).textTheme.titleLarge,
         ),
       ),
       body: Container(
-        height: 320,
+        color: Colors.white, // Fundo branco
         padding: EdgeInsets.all(8),
         child: BarChart(
           BarChartData(
+            backgroundColor: Colors.white, // Fundo do gráfico branco
             alignment: BarChartAlignment.center,
             maxY: groupedData.values.fold(
                 0.0,
@@ -79,13 +83,17 @@ class _BarChartComponentState extends State<BarChartComponent> {
                 ),
               ),
               rightTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 70,
-                      getTitlesWidget: (value, meta) {
-                        return Text("R\$ ${value.toInt().toString()}",
-                            style: Theme.of(context).textTheme.bodySmall);
-                      })),
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 70,
+                  getTitlesWidget: (value, meta) {
+                    return Text(
+                      "R\$ ${value.toInt().toString()}",
+                      style: Theme.of(context).textTheme.bodySmall,
+                    );
+                  },
+                ),
+              ),
             ),
             gridData: FlGridData(show: true),
             borderData: FlBorderData(show: false),

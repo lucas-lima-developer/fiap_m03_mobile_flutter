@@ -96,17 +96,17 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           body: const TabBarView(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(16),
-                      child: ListViewScreen(),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Dashboard(),
-                    ),
-                  ],
-                ),
+            children: [
+              Padding(
+                padding: EdgeInsets.all(16),
+                child: ListViewScreen(),
+              ),
+              Padding(
+                padding: EdgeInsets.all(16),
+                child: Dashboard(),
+              ),
+            ],
+          ),
         ),
       ),
     );

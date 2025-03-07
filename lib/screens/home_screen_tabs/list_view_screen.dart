@@ -69,6 +69,7 @@ class _ListViewScreenState extends State<ListViewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // Adicione esta linha
       appBar: AppBar(
         title: Text('Listagem de Transações'),
       ),
