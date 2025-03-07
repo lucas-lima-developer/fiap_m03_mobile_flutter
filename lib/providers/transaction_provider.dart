@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fiap_m03_mobile_flutter/types/transaction.dart';
+import 'package:brasil_fields/brasil_fields.dart';
 
 class TransactionProvider with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -26,7 +27,9 @@ class TransactionProvider with ChangeNotifier {
     if (isLoading) return [];
 
     isLoading = true;
-    notifyListeners();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
 
     try {
       final user = _auth.currentUser;
@@ -44,14 +47,16 @@ class TransactionProvider with ChangeNotifier {
           .orderBy('date', descending: true)
           .limit(limit);
 
-      if (category != null) query = query.where('category', isEqualTo: category);
+      if (category != null)
+        query = query.where('category', isEqualTo: category);
       if (startDate != null && endDate != null) {
         query = query
             .where('date', isGreaterThanOrEqualTo: startDate)
             .where('date', isLessThanOrEqualTo: endDate);
       }
 
-      if (_lastDocument != null) query = query.startAfterDocument(_lastDocument!);
+      if (_lastDocument != null)
+        query = query.startAfterDocument(_lastDocument!);
 
       final querySnapshot = await query.get();
 
@@ -59,7 +64,8 @@ class TransactionProvider with ChangeNotifier {
         _lastDocument = querySnapshot.docs.last;
 
         final newTransactions = querySnapshot.docs.map((doc) {
-          return TransactionType.fromJson(doc.data() as Map<String, dynamic>, doc.id);
+          return TransactionType.fromJson(
+              doc.data() as Map<String, dynamic>, doc.id);
         }).toList();
 
         _transactions.addAll(newTransactions);
@@ -78,7 +84,9 @@ class TransactionProvider with ChangeNotifier {
       rethrow;
     } finally {
       isLoading = false;
-      notifyListeners();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
     }
   }
 
