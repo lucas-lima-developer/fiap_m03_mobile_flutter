@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.fiap_m03_mobile_flutter"
-    compileSdkVersion 34 // Use a versão mais recente disponível
+    compileSdkVersion 35 // Use a versão mais recente disponível
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -22,7 +22,7 @@ android {
     defaultConfig {
         applicationId = "com.example.fiap_m03_mobile_flutter_firebase"
         minSdkVersion 23  
-        targetSdkVersion 34 // Atualize para a última versão estável
+        targetSdkVersion 35 // Atualize para a última versão estável
         versionCode flutter.versionCode
         versionName flutter.versionName
         multiDexEnabled true // Necessário para Firebase em projetos grandes

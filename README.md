@@ -56,9 +56,9 @@ flutter build appbundle
 
 ## Versões do Android
 
-- **compileSdkVersion**: 34
+- **compileSdkVersion**: 35
 - **minSdkVersion**: 23
-- **targetSdkVersion**: 34
+- **targetSdkVersion**: 35
 
 ## Considerações
 

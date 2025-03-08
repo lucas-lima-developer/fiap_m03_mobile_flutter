@@ -16,30 +16,53 @@ class _FilterComponentState extends State<FilterComponent> {
   DateTimeRange? _dataRange;
   final DateFormat _dateFormat = DateFormat('dd/MM/yyyy');
 
+  final TextEditingController _descriptionController = TextEditingController();
+
+  /// Aplica o filtro chamando o callback com os valores selecionados.
   void _applyFilter() {
     widget.onFilterApply({
       'category': _selectedCategory,
       'startDate': _dataRange?.start,
       'endDate': _dataRange?.end,
+      'description': _descriptionController.text.trim(),
       'reset': false,
     });
   }
 
+  /// Limpa todos os filtros (categoria, intervalo e descrição).
   void _clearFilters() {
     setState(() {
       _selectedCategory = null;
       _dataRange = null;
+      _descriptionController.clear();
     });
     widget.onFilterApply({'reset': true});
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    // Verifica se algum filtro está ativo para decidir se mostra o botão "Limpar"
+    final bool anyFilterActive = (_selectedCategory != null) ||
+        (_dataRange != null) ||
+        (_descriptionController.text.isNotEmpty);
+
+    return Container(
+      color: Colors.white, // Fundo branco
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // FILTRO POR DESCRIÇÃO
+          TextFormField(
+            controller: _descriptionController,
+            decoration: const InputDecoration(
+              labelText: 'Descrição',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // FILTRO POR CATEGORIA
           DropdownButtonFormField<String>(
             value: _selectedCategory,
             decoration: const InputDecoration(
@@ -49,14 +72,28 @@ class _FilterComponentState extends State<FilterComponent> {
             onChanged: (value) {
               setState(() => _selectedCategory = value);
             },
-            items: [
+            items: const [
               DropdownMenuItem(
-                  value: 'Categoria 1', child: Text('Categoria 1')),
+                value: 'Depósito',
+                child: Text('Depósito'),
+              ),
               DropdownMenuItem(
-                  value: 'Categoria 2', child: Text('Categoria 2')),
+                value: 'Saque',
+                child: Text('Saque'),
+              ),
+              DropdownMenuItem(
+                value: 'Pagamento',
+                child: Text('Pagamento'),
+              ),
+              DropdownMenuItem(
+                value: 'Transferência',
+                child: Text('Transferência'),
+              ),
             ],
           ),
           const SizedBox(height: 16),
+
+          // FILTRO POR INTERVALO DE DATAS
           GestureDetector(
             onTap: () async {
               final result = await showDateRangePicker(
@@ -77,11 +114,14 @@ class _FilterComponentState extends State<FilterComponent> {
               child: Text(
                 _dataRange == null
                     ? 'Selecione um período'
-                    : '${_dateFormat.format(_dataRange!.start)} - ${_dateFormat.format(_dataRange!.end)}',
+                    : '${_dateFormat.format(_dataRange!.start)} - '
+                        '${_dateFormat.format(_dataRange!.end)}',
               ),
             ),
           ),
           const SizedBox(height: 24),
+
+          // BOTÕES
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -89,7 +129,7 @@ class _FilterComponentState extends State<FilterComponent> {
                 onPressed: _applyFilter,
                 child: const Text('Aplicar Filtro'),
               ),
-              if (_selectedCategory != null || _dataRange != null)
+              if (anyFilterActive)
                 OutlinedButton(
                   onPressed: _clearFilters,
                   style: OutlinedButton.styleFrom(

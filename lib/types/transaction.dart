@@ -19,6 +19,7 @@ class TransactionType {
     required this.userId,
   });
 
+  /// Construtor para usar quando estiver convertendo de um Map local (pouco usado).
   factory TransactionType.fromMap(Map<String, dynamic> map) {
     return TransactionType(
       id: map['id'] as String,
@@ -31,18 +32,20 @@ class TransactionType {
     );
   }
 
+  /// Construtor principal para receber dados do Firestore (Json + docId).
   factory TransactionType.fromJson(Map<String, dynamic> json, String docId) {
     return TransactionType(
-      id: docId, // Atribui o ID do documento
+      id: docId, // ID do documento no Firestore
       userId: json['userId'] ?? '',
       amount: (json['amount'] ?? 0).toDouble(),
       category: json['category'] ?? '',
       description: json['description'] ?? '',
-      date:
-          (json['date'] as Timestamp).toDate(), // Se estiver vindo do Firestore
+      date: (json['date'] as Timestamp).toDate(),
+      attachmentUrl: json['attachmentUrl'] as String?,
     );
   }
 
+  /// Converte de volta para Map (caso precise salvar localmente, etc.)
   Map<String, dynamic> toMap() {
     return {
       'id': id,
