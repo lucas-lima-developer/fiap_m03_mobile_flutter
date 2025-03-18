@@ -26,12 +26,19 @@ Antes de iniciar, certifique-se de ter instalado:
    flutter pub get
    ```
 
-3. **Configure o Firebase**
+3. **Configurar nova conta no Firebase**
 
    - Acesse o [Firebase Console](https://console.firebase.google.com/)
-   - Crie um novo projeto ou use um existente
-   - Adicione um app Android ao projeto Firebase
-   - Baixe o arquivo `google-services.json` e coloque dentro do diretório `android/app`
+   - Entre com a nova conta desejada
+   - Selecione o projeto existente ou crie um novo
+   - Adicione um novo app Android ao projeto Firebase
+   - Baixe o arquivo `google-services.json` e substitua o antigo dentro do diretório `android/app`
+   - Para iOS, baixe o arquivo `GoogleService-Info.plist` e substitua no diretório `ios/Runner`
+   - No terminal, execute:
+     ```sh
+     flutter clean
+     flutter pub get
+     ```
 
 4. **Execute o projeto**
    - Conecte um dispositivo Android via USB ou inicie um emulador
