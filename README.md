@@ -16,7 +16,7 @@ Antes de iniciar, certifique-se de ter instalado:
 1. **Clone o repositório**
 
    ```sh
-   git clone <URL_DO_REPOSITORIO>
+   git clone https://github.com/lucas-lima-developer/fiap_m03_mobile_flutter.git
    cd fiap_m03_mobile_flutter
    ```
 
